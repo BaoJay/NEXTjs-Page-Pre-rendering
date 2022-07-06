@@ -1,23 +1,18 @@
-import { Fragment } from 'react';
-import { useRouter } from 'next/router';
+import { Fragment } from "react";
 
-import { getEventById } from '../../dummy-data';
-import EventSummary from '../../components/event-detail/event-summary';
-import EventLogistics from '../../components/event-detail/event-logistics';
-import EventContent from '../../components/event-detail/event-content';
-import ErrorAlert from '../../components/ui/error-alert';
+import { getEventById, getAllEvents } from "../../components/helpers/api-util";
+import EventSummary from "../../components/event-detail/event-summary";
+import EventLogistics from "../../components/event-detail/event-logistics";
+import EventContent from "../../components/event-detail/event-content";
+import ErrorAlert from "../../components/ui/error-alert";
 
-function EventDetailPage() {
-  const router = useRouter();
-
-  const eventId = router.query.eventId;
-  const event = getEventById(eventId);
-
+function EventDetailPage(props) {
+  const { event } = props;
   if (!event) {
     return (
-      <ErrorAlert>
-        <p>No event found!</p>
-      </ErrorAlert>
+      // <ErrorAlert>
+      <p className="center">Loading...</p>
+      // </ErrorAlert>
     );
   }
 
@@ -38,3 +33,28 @@ function EventDetailPage() {
 }
 
 export default EventDetailPage;
+
+export async function getStaticProps(context) {
+  const eventId = context.params.eventId;
+  const event = await getEventById(eventId);
+
+  // if (!event) {
+  //   return { notFound: true };
+  // }
+
+  return {
+    props: {
+      event,
+    },
+  };
+}
+
+export async function getStaticPaths() {
+  const allEvents = await getAllEvents();
+  const paths = allEvents.map((event) => ({ params: { eventId: event.id } }));
+  return {
+    paths: paths,
+    // false =  if unknown id is found --> get the 404 page
+    fallback: false,
+  };
+}

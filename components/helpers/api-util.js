@@ -27,3 +27,8 @@ export async function getAllEvents() {
   const data = await fetchAllData();
   return data;
 }
+
+export async function getEventById(id) {
+  const data = await fetchAllData();
+  return data.find((event) => event.id === id);
+}
